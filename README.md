@@ -26,3 +26,13 @@ a demo for creating a platform for collaborative discussion on paticular product
 * database tbd
 * devop tools to get a good system working to push changes
   
+
+
+
+## relevant links
+
+https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world
+
+### tools 
+* venvv
+

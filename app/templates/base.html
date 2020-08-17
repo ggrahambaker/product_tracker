@@ -1,0 +1,15 @@
+<html>
+<head>
+    <title>Welcome to {% if title %} {{ title }} - PD {% else %} PD {% endif %}</title>
+</head>
+
+    <body>
+
+        <div> 
+            <a href="{{ url_for('index') }}"> home </a>
+            <a href="{{ url_for('login') }}"> login </a>
+        </div>
+        {% block content %}{% endblock %}
+    </body>
+
+</html>
