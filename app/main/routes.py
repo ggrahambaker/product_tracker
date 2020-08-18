@@ -1,23 +1,26 @@
 
 from flask import render_template, flash, redirect, url_for, request
 from werkzeug.urls import url_parse
+from app import db
 
-from flask_login import login_user, current_user, logout_user, login_required
-from app.forms import LoginForm, RegistrationForm, EditProfileForm, MakeAssetForm, MakeCommentForm
+from app.main.forms import EditProfileForm, MakeAssetForm, MakeCommentForm
 from app.models import User, FinAsset, FinComment
 
-from app import app, db
+from flask_login import current_user, login_required
+
 from datetime import datetime
 
-@app.before_request
+from app.main import bp
+
+@bp.before_request
 def before_request():
     if current_user.is_authenticated:
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
 
 
-@app.route('/')
-@app.route('/index')
+@bp.route('/')
+@bp.route('/index')
 @login_required
 def index():
     assets = FinAsset.query.order_by(FinAsset.last_active.desc()).all()
@@ -28,7 +31,7 @@ def index():
 
 
 
-@app.route('/edit_profile', methods=['GET', 'POST'])
+@bp.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
     form = EditProfileForm(current_user.username)
@@ -37,7 +40,7 @@ def edit_profile():
         current_user.about_me = form.about_me.data
         db.session.commit()
         flash('Your changes have been saved.')
-        return redirect(url_for('user', username = current_user.username))
+        return redirect(url_for('auth.user', username = current_user.username))
     elif request.method == 'GET':
         form.username.data = current_user.username
         form.about_me.data = current_user.about_me
@@ -45,14 +48,14 @@ def edit_profile():
                            form=form)
 
 
-@app.route('/user/<username>')
+@bp.route('/user/<username>')
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
 
     return render_template('user.html', user=user)
 
 
-@app.route('/new_asset', methods = ['GET', 'POST'])
+@bp.route('/new_asset', methods = ['GET', 'POST'])
 @login_required
 def new_asset():
     form = MakeAssetForm()
@@ -64,14 +67,14 @@ def new_asset():
         db.session.add(asset)
         db.session.commit()
         flash('created new asset page')
-        return redirect(url_for('assets', assetname=asset.name))
+        return redirect(url_for('main.assets', assetname=asset.name))
     
     return render_template('new_asset.html', title='Create New Asset Page', form=form)
 
 
     
 
-@app.route('/assets/<assetname>', methods = ['GET', 'POST'])
+@bp.route('/assets/<assetname>', methods = ['GET', 'POST'])
 @login_required
 def assets(assetname):
     asset = FinAsset.query.filter_by(name = assetname).first_or_404()
@@ -81,19 +84,15 @@ def assets(assetname):
 
     if form.validate_on_submit():
 
-
-
-
         comment = FinComment(body = form.comment.data, 
                             asset = asset,
                             author = current_user)
-        
-
+    
         asset.last_active = datetime.utcnow()
     
         db.session.add(comment)
         db.session.commit()
         flash('comment posted!')
-        return redirect(url_for('assets', assetname=asset.name))
+        return redirect(url_for('main.assets', assetname=asset.name))
 
     return render_template('asset.html', form=form, asset_obj = asset, comments = comments)
