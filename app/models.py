@@ -12,6 +12,7 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(64), index = True, unique = True)
     password_hash = db.Column(db.String(128))
     prospect_assets = db.relationship('FinAsset', backref='owner', lazy='dynamic')
+    comments = db.relationship('FinComment', backref='author', lazy='dynamic')
     about_me = db.Column(db.String(140))
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -40,7 +41,20 @@ class FinAsset(db.Model):
     name = db.Column(db.String(140))
     description = db.Column(db.String(140))
     created_at = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    last_active = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    comments = db.relationship('FinComment', backref='asset', lazy='dynamic')
+    
 
-    def __repr__(self):
-        return '<FinAsset: {}, Owner: {}>'.format(self.name, self.owner.name)
+    ## need to make url routing for weird names for asset names
+
+    
+class FinComment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    asset_id = db.Column(db.Integer, db.ForeignKey('fin_asset.id'))
+    body = db.Column(db.String(600))
+    created_at = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+
+
+
