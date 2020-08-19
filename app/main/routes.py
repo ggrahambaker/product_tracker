@@ -1,5 +1,5 @@
 
-from flask import render_template, flash, redirect, url_for, request
+from flask import render_template, flash, redirect, url_for, request, current_app
 from werkzeug.urls import url_parse
 from app import db
 
@@ -23,9 +23,17 @@ def before_request():
 @bp.route('/index')
 @login_required
 def index():
-    assets = FinAsset.query.order_by(FinAsset.last_active.desc()).all()
+    page = request.args.get('page', 1, type=int)
 
-    return render_template('index.html', title= 'home', assets = assets)
+    assets = FinAsset.query.order_by(FinAsset.last_active.desc()).paginate(
+        page, current_app.config['POSTS_PER_PAGE'], False
+    )
+
+
+    next_url = url_for('main.index', page = assets.next_num) if assets.has_next else None
+    prev_url = url_for('main.index', page = assets.prev_num) if assets.has_prev else None
+
+    return render_template('index.html', title='home', assets = assets.items, next_url = next_url, prev_url = prev_url)
 
 
 
@@ -96,3 +104,6 @@ def assets(assetname):
         return redirect(url_for('main.assets', assetname=asset.name))
 
     return render_template('asset.html', form=form, asset_obj = asset, comments = comments)
+
+
+

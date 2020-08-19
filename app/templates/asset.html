@@ -1,55 +1,46 @@
 {% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
 
-{% block content %}
-<div>
-    <table>
-        <tr>
-            <p>Asset: {{ asset_obj.name }}</p>
-        </tr>
-        <tr>
-            <p>Created at: {{ asset_obj.created_at }}</p>
-        </tr>
-        <tr>
-            <p>Created by: {{ asset_obj.owner.username }}</p>
-        </tr>
-        <tr>
-            <p>Description: {{ asset_obj.description }}</p>
-        </tr>
-    </table>
+{% block app_content %}
+
+<div class="col-md-12">
+    <h1>{{ asset_obj.name }}</h1> 
+    <p>Created at: {{ moment(asset_obj.created_at).format('LLL')  }}</p>
+    <p>Created by: {{ asset_obj.owner.username }}</p>
+    <p>Description: {{ asset_obj.description }}</p>
 </div>
-
 
 
 {% if comments %}
-<div>
-<p>comments:</p>
+<div class="col-md-12">
+    <h2>comments</h2>
 
-{% for comment in comments %}
-    <table>
-        <tr valign="top">
-            <td><img src="{{ comment.author.avatar(36)}}"></td>
-            <td> 
-                {{ comment.author.username}}
-                
-                says: <b> {{ comment.body }}</td>
-        </tr>
-    </table>
-{% endfor %}
+    {% for comment in comments %}
+
+        <table class="table table-hover">
+            <td width="70px"><img src="{{ comment.author.avatar(70) }}"></td>
+            <td> {{ comment.author.username}} says: <b>{{ comment.body }}</b></td>
+        </table>
+    {% endfor %}
 </div>
+
+
+{% else %}
+<div class="col-md-12">
+<p>no comments yet</p>
+</div>
+
 {% endif %}
 
 
-<div>
-    <p>Comment</p>
-    <form action="" method="post">
-        {{ form.hidden_tag() }}
-        <p>
-            {{ form.comment.label }}<br>
-            {{ form.comment(size=140) }}<br>
-        
-        </p>
-        <p>{{ form.submit() }}</p>
-    </form>
+
+
+
+
+
+<div class="col-md-12">
+
+    {{ wtf.quick_form(form) }}
 </div>
 
 

@@ -4,3 +4,4 @@ migrations/
 copy_paste.txt
 app.db
 /logs
+.env
