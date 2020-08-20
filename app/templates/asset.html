@@ -8,7 +8,14 @@
     <p>Created at: {{ moment(asset_obj.created_at).format('LLL')  }}</p>
     <p>Created by: {{ asset_obj.owner.username }}</p>
     <p>Description: {{ asset_obj.description }}</p>
+
+    {% if asset_obj.owner == current_user %}
+    <a href="{{url_for('main.edit_asset', assetname=asset_obj.name)}}"> edit asset</a>
+
+    {% endif %}
 </div>
+
+
 
 
 {% if comments %}
