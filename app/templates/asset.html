@@ -10,8 +10,16 @@
     <p>Description: {{ asset_obj.description }}</p>
 
     {% if asset_obj.owner == current_user %}
-    <a href="{{url_for('main.edit_asset', assetname=asset_obj.name)}}"> edit asset</a>
 
+    <a class="btn btn-primary" href="{{url_for('main.edit_asset', assetname=asset_obj.name)}}" role="button">edit asset</a>
+
+    {% endif %}
+
+    {% if current_user.is_following(asset_obj)%}
+    <a class="btn btn-primary" href="{{url_for('main.unfollow', assetname = asset_obj.name)}}" role="button">unfollow</a>
+    {% else %}
+
+    <a class="btn btn-primary" href="{{url_for('main.follow', assetname = asset_obj.name)}}" role="button">follow</a>
     {% endif %}
 </div>
 

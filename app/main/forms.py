@@ -55,6 +55,7 @@ class MakeCommentForm(FlaskForm):
 
 class SearchForm(FlaskForm):
     q = StringField('Search', validators=[DataRequired()])
+    submit = SubmitField('Go')
     def __init__(self, *args, **kwargs):
         if 'formdata' not in kwargs:
             kwargs['formdata'] = request.args
@@ -62,3 +63,4 @@ class SearchForm(FlaskForm):
             kwargs['csrf_enabled'] = False
 
         super(SearchForm, self).__init__(*args, **kwargs)
+    

@@ -7,6 +7,12 @@
     <h1>welcome to danger, {{current_user.username}}</h1>
 
 
+    <div class="btn-group" role="group">
+        <a role="button" class="btn btn-primary" href="{{url_for('main.index')}}">all assets</a>
+        <a role="button" class="btn btn-primary" href="{{url_for('main.followed_assets')}}">followed assets</a>
+    </div>
+
+    <br>
 
 {% for asset in assets %}
     {% include '_asset_preview.html' %}

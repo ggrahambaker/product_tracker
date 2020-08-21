@@ -125,6 +125,59 @@ def edit_asset(assetname):
     return render_template('edit_profile.html', title='Edit Profile',
                            form=form)
 
+
+
+@bp.route('/follow/<assetname>')
+@login_required
+def follow(assetname):
+    print(assetname)
+    asset = FinAsset.query.filter_by(name = assetname).first()
+    if asset is None:
+        flash('Asset {} not found'.format(assetname))
+        return redirect( url_for('main.index'))
+
+    current_user.follow_asset(asset)
+    db.session.commit()
+    flash('you are now following {}'.format(assetname))
+    return redirect(url_for('main.assets', assetname = assetname))
+
+
+
+
+@bp.route('/unfollow/<assetname>')
+@login_required
+def unfollow(assetname):
+    asset = FinAsset.query.filter_by(name = assetname).first()
+    if asset is None:
+        flash('Asset {} not found'.format(assetname))
+        return redirect( url_for('main.index'))
+
+    current_user.unfollow_asset(asset)
+    db.session.commit()
+    flash('you are not following {}'.format(assetname))
+    return redirect(url_for('main.assets', assetname = assetname))
+
+
+@bp.route('/followed_assets')
+@login_required
+def followed_assets():
+    user = User.query.filter_by(username = current_user.username).first()
+    assets = user.get_followed_assets()
+
+    page = request.args.get('page', 1, type=int)
+
+    assets_ord = assets.order_by(FinAsset.last_active.desc()).paginate(
+        page, current_app.config['POSTS_PER_PAGE'], False
+    )
+
+
+    next_url = url_for('main.index', page = assets_ord.next_num) if assets_ord.has_next else None
+    prev_url = url_for('main.index', page = assets_ord.prev_num) if assets_ord.has_prev else None
+
+    return render_template('index.html', title='followed', assets = assets_ord.items, next_url = next_url, prev_url = prev_url)
+
+
+
 @bp.route('/search')
 @login_required
 def search():

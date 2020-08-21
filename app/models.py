@@ -9,6 +9,12 @@ from time import time
 from app.search import add_to_index, remove_from_index, query_index
 
 
+followers = db.Table(
+    'followers', 
+    db.Column('follower_id', db.Integer, db.ForeignKey('user.id')), 
+    db.Column('asset_id', db.Integer, db.ForeignKey('fin_asset.id'))
+)
+
 
 
 class SearchableMixin(object):
@@ -64,6 +70,10 @@ class User(db.Model, UserMixin):
     comments = db.relationship('FinComment', backref='author', lazy='dynamic')
     about_me = db.Column(db.String(140))
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
+    followed = db.relationship(
+        'FinAsset', secondary=followers,
+        backref = 'users', 
+        lazy='dynamic')
 
     def avatar(self, size):
         digest = md5(self.email.lower().encode('utf-8')).hexdigest()
@@ -81,6 +91,23 @@ class User(db.Model, UserMixin):
             {'reset_password': self.id, 'exp': time() + expires_in},
             current_app.config['SECRET_KEY'],
             algorithm='HS256').decode('utf-8')
+
+    def follow_asset(self, asset):
+        if not self.is_following(asset):
+            self.followed.append(asset)
+    
+    def unfollow_asset(self, asset):
+        if self.is_following(asset):
+            self.followed.remove(asset)
+
+    def is_following(self, asset):
+        return self.followed.filter(
+            followers.c.asset_id == asset.id
+        ).count() > 0
+
+    def get_followed_assets(self):
+        return self.followed
+
 
     @staticmethod
     def verify_reset_password_token(token):
@@ -110,6 +137,14 @@ class FinAsset(SearchableMixin, db.Model):
     last_active = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     comments = db.relationship('FinComment', backref='asset', lazy='dynamic')
+    followed_by = db.relationship(
+        'User', secondary=followers,
+        backref = 'assets', 
+        lazy = 'dynamic')
+    
+    def get_followers(self):
+        return FinAsset.followed_by
+
     
 
     ## need to make url routing for weird names for asset names
