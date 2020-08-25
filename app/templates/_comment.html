@@ -1,0 +1,25 @@
+<table class="table table-hover">
+    <tr>
+        <td class="col-md-1">
+            <div class="text-center">
+                <p class="text-center">{{ comment.author.username}}</p>
+                <img class="text-center" src="{{ comment.author.avatar(70) }}">
+
+            </div>
+           
+        </td>
+        <td class="col-md-9"> <b>{{ comment.body }}</b></td>
+        <td class="col-md-2">
+            <a href="">edit</a>
+            <br>
+            <a href="{{ url_for('main.delete_comment', comment_id = comment.id)}}">delete comment</a>
+        </td>
+    </tr>
+    <tr>
+        <td width="70px"></td>
+       
+        <td><td></td></td>
+    </tr>
+
+    
+</table>

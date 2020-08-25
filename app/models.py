@@ -7,6 +7,7 @@ from hashlib import md5
 import jwt
 from time import time
 from app.search import add_to_index, remove_from_index, query_index
+import json
 
 
 followers = db.Table(
@@ -68,6 +69,16 @@ class User(db.Model, UserMixin):
     password_hash = db.Column(db.String(128))
     prospect_assets = db.relationship('FinAsset', backref='owner', lazy='dynamic')
     comments = db.relationship('FinComment', backref='author', lazy='dynamic')
+    messages_sent = db.relationship('Message',
+                                    foreign_keys='Message.sender_id',
+                                    backref='author', lazy='dynamic')
+    messages_received = db.relationship('Message',
+                                        foreign_keys='Message.recipient_id',
+                                        backref='recipient', lazy='dynamic')
+
+    notifications = db.relationship('Notification', backref='user',
+                                    lazy='dynamic')
+    last_message_read_time = db.Column(db.DateTime)
     about_me = db.Column(db.String(140))
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     followed = db.relationship(
@@ -108,6 +119,16 @@ class User(db.Model, UserMixin):
     def get_followed_assets(self):
         return self.followed
 
+    def new_messages(self):
+        last_read_time = self.last_message_read_time or datetime(1900, 1, 1)
+        return Message.query.filter_by(recipient=self).filter(
+            Message.timestamp > last_read_time).count()
+
+    def add_notification(self, name, data):
+        self.notifications.filter_by(name=name).delete()
+        n = Notification(name=name, payload_json=json.dumps(data), user=self)
+        db.session.add(n)
+        return n
 
     @staticmethod
     def verify_reset_password_token(token):
@@ -132,7 +153,7 @@ class FinAsset(SearchableMixin, db.Model):
     __searchable__ = ['description', 'name']
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(140))
-    description = db.Column(db.String(140))
+    description = db.Column(db.String(1000))
     created_at = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     last_active = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -157,5 +178,29 @@ class FinComment(db.Model):
     body = db.Column(db.String(600))
     created_at = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
+
+
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    body = db.Column(db.String(140))
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+
+    def __repr__(self):
+        return '<Message {}>'.format(self.body)
+
+
+
+
+class Notification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128), index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    timestamp = db.Column(db.Float, index=True, default=time)
+    payload_json = db.Column(db.Text)
+
+    def get_data(self):
+        return json.loads(str(self.payload_json))
 
 

@@ -1,6 +1,6 @@
 from flask import request
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, FileField
 from wtforms.validators import DataRequired, ValidationError, Email, EqualTo, Length
 from app.models import User, FinAsset
 
@@ -25,7 +25,7 @@ class EditProfileForm(FlaskForm):
 
 class MakeAssetForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
-    description = TextAreaField('Description', validators=[Length(min=0, max=140), DataRequired()])
+    description = TextAreaField('Description', validators=[Length(min=0, max=1000), DataRequired()])
 
     submit = SubmitField('Make New Page')
 
@@ -64,3 +64,13 @@ class SearchForm(FlaskForm):
 
         super(SearchForm, self).__init__(*args, **kwargs)
     
+
+class MessageForm(FlaskForm):
+    message = TextAreaField('Message', validators=[
+        DataRequired(), Length(min=0, max=140)])
+    submit = SubmitField('Submit')
+
+
+class UploadFileForm(FlaskForm):
+    file = FileField('File')
+    submit = SubmitField('Submit')
