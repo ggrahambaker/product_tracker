@@ -1,9 +1,11 @@
 
 from flask import render_template, flash, redirect, url_for, request, current_app, g, jsonify
 from werkzeug.urls import url_parse
+from werkzeug.utils import secure_filename
 from app import db
+import os
 from app.main.forms import EditProfileForm, MakeAssetForm, MakeCommentForm, SearchForm, EditAssetForm, MessageForm
-from app.models import User, FinAsset, FinComment, Message, Notification
+from app.models import User, FinAsset, FinComment, Message, Notification, FinAssetAttachment
 
 from flask_login import current_user, login_required
 
@@ -71,11 +73,26 @@ def new_asset():
     form = MakeAssetForm()
 
     if form.validate_on_submit():
+      
         asset = FinAsset(name=form.title.data, 
-                         description=form.description.data,
-                         owner=current_user)
+                        description=form.description.data,
+                        owner=current_user)
         db.session.add(asset)
+
+  
+        if len(form.files.data) > 0:
+            for file in form.files.data:
+                filename = secure_filename(file.filename)
+                if filename == '':
+                    break
+                file.save(os.path.join(current_app.config['UPLOAD_PATH'], filename))
+                att = FinAssetAttachment(name=filename, asset = asset)
+                db.session.add(att)
+        
+
+    
         db.session.commit()
+
         flash('created new asset page')
         return redirect(url_for('main.assets', assetname=asset.name))
     
@@ -90,6 +107,9 @@ def assets(assetname):
     asset = FinAsset.query.filter_by(name = assetname).first_or_404()
 
     comments = FinComment.query.filter_by(asset = asset).order_by(FinComment.created_at.desc()).all()
+    attach = FinAssetAttachment.query.filter_by(asset = asset).all()
+    if not attach:
+        attach = None
     form = MakeCommentForm()
 
     if form.validate_on_submit():
@@ -105,7 +125,7 @@ def assets(assetname):
         flash('comment posted!')
         return redirect(url_for('main.assets', assetname=asset.name))
 
-    return render_template('asset.html', form=form, asset_obj = asset, comments = comments)
+    return render_template('asset.html', form=form, asset_obj = asset, comments = comments, attach = attach)
 
 
 @bp.route('/delete_comment/<comment_id>')
@@ -127,9 +147,6 @@ def delete_comment(comment_id):
 
 
     
-        
-
-
 
 @bp.route('/edit_asset/<assetname>', methods=['GET', 'POST'])
 @login_required
@@ -140,14 +157,49 @@ def edit_asset(assetname):
     if form.validate_on_submit():
         asset.name = form.title.data
         asset.description = form.description.data
+        if len(form.files.data) > 0:
+            for file in form.files.data:
+                filename = secure_filename(file.filename)
+                if filename == '':
+                    break
+                file.save(os.path.join(current_app.config['UPLOAD_PATH'], filename))
+                att = FinAssetAttachment(name=filename, asset = asset)
+                db.session.add(att)
+
+
         db.session.commit()
         flash('Your changes have been saved.')
         return redirect(url_for('main.assets',  assetname=asset.name))
     elif request.method == 'GET':
         form.title.data = asset.name
         form.description.data = asset.description
-    return render_template('edit_profile.html', title='Edit Profile',
-                           form=form)
+
+        attach = FinAssetAttachment.query.filter_by(asset = asset).all()
+        
+
+    return render_template('edit_asset.html', title='Edit Asset',
+                           form=form, attach=attach)
+
+
+
+@bp.route('/delete_attachment/<attach_id>', methods = ['POST'])
+@login_required
+def delete_attachment(attach_id):
+    attach = FinAssetAttachment.query.get(attach_id)
+    
+    if not attach:
+        flash('an error has occured deleting attachment')
+
+        asset = FinAsset.query.get(attach.asset_id)
+        return redirect(url_for('main.index'))
+
+    asset = FinAsset.query.get(attach.asset.id)
+    
+    db.session.delete(attach)
+    db.session.commit()
+    os.remove(os.path.join(current_app.config['UPLOAD_PATH'], attach.name))
+
+    return redirect(url_for('main.edit_asset', assetname=asset.name))
 
 
 

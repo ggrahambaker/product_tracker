@@ -1,6 +1,6 @@
 from flask import request
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, FileField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, FileField, MultipleFileField
 from wtforms.validators import DataRequired, ValidationError, Email, EqualTo, Length
 from app.models import User, FinAsset
 
@@ -26,13 +26,19 @@ class EditProfileForm(FlaskForm):
 class MakeAssetForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
     description = TextAreaField('Description', validators=[Length(min=0, max=1000), DataRequired()])
-
+    files = MultipleFileField('File')
     submit = SubmitField('Make New Page')
+
+    def validate_title(self, title):
+        asset = FinAsset.query.filter_by(name = title.data).first()
+        if asset is not None:
+            raise ValidationError('Please use a different asset name')
 
 
 class EditAssetForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
     description = TextAreaField('Description', validators=[Length(min=0, max=140)])
+    files = MultipleFileField('File')
     
     def __init__(self, original_asset_name, *args, **kwargs):
         super(EditAssetForm, self).__init__(*args, **kwargs)
@@ -40,7 +46,6 @@ class EditAssetForm(FlaskForm):
 
 
     def validate_title(self, asset):
-        print(asset)
         if asset.data != self.original_asset_name:
             asset = FinAsset.query.filter_by(name=self.title.data).first()
             if asset is not None:
@@ -70,7 +75,3 @@ class MessageForm(FlaskForm):
         DataRequired(), Length(min=0, max=140)])
     submit = SubmitField('Submit')
 
-
-class UploadFileForm(FlaskForm):
-    file = FileField('File')
-    submit = SubmitField('Submit')

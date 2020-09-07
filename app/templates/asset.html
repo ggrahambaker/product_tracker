@@ -8,6 +8,16 @@
         <h1>{{ asset_obj.name }}</h1>
         <p>last updated at: {{ moment(asset_obj.last_active).format('LLL')  }}</p>
         <p>Created by: {{ asset_obj.owner.username }}</p>
+
+        {% if attach %}
+        {% for a in attach %}
+
+            <p> <a href="{{url_for('static', filename='uploads/' + a.name)}}">{{a.name}}</a></p>
+
+        {% endfor %}
+
+
+        {% endif %}
     
         {% if current_user.is_following(asset_obj)%}
         <a class="btn btn-primary" href="{{url_for('main.unfollow', assetname = asset_obj.name)}}" role="button">unfollow</a>

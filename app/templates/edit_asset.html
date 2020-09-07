@@ -2,10 +2,64 @@
 {% import 'bootstrap/wtf.html' as wtf %}
 
 {% block app_content %}
-    <h1>Edit Asset</h1>
-    <div class="row">
-        <div class="col-md-4">
-            {{ wtf.quick_form(form) }}
-        </div>
+<h1 class="text-center">Edit Asset</h1>
+<div class="row">
+    <div class="col-md-2">
     </div>
+    <div class="col-md-8">
+    
+        <form method="post" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <div class="form-group" style="width: 100%">
+                
+                {{ form.title.label(class_="col-md-2") }} 
+                <div class="col-md-10">
+                    {{ form.title( style="width: 100%")}}
+                </div>
+            </div>    
+            <br>
+            <br>
+    
+            <div class="form-group" style="width: 100%">
+                {{ form.description.label(class_="col-md-2") }} 
+
+                <div class="col-md-10">
+                    {{ form.description(rows=7, style="width: 100%") }}
+                </div>
+            </div>
+            <br>
+            <br>
+
+
+
+            <div class="text-center">
+                {{ form.files.label}} <br>
+                {{ form.files()}}
+            </div>
+
+
+            <div class="text-center">
+                <br>
+                {{ form.submit()}}
+            </div>
+            
+             
+        </form>
+       
+    </div>
+    <div class="col-md-2">
+    </div>
+</div>
+
+
+<div>
+    {% if attach %}
+    {%for a in attach %}
+    <form method="post" enctype="multipart/form-data" action="{{url_for('main.delete_attachment', attach_id = a.id)}}">
+        <p> <a href="{{url_for('static', filename='uploads/' + a.name)}}">{{a.name}}</a></p>
+        <p><input type="submit" value="Delete"></p>    
+    </form>
+    {% endfor %}
+    {% endif %}
+</div>
 {% endblock %}

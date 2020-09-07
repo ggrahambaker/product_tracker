@@ -16,6 +16,8 @@ class Config(object):
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     ADMINS = ['graham.cr.baker@gmail.com']
     POSTS_PER_PAGE = 10
-
-    ELASTICSEARCH_URL= os.environ.get('ELASTICSEARCH_URL')
+    MAX_CONTENT_LENGTH = 1024 * 1024
+    UPLOAD_EXTENSIONS = ['.jpg', '.png', '.pdf', '.doc', '.docx', '.txt']
+    UPLOAD_PATH = os.path.join(basedir, 'app/static/uploads') 
+    ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL')
 

@@ -152,12 +152,13 @@ def load_user(id):
 class FinAsset(SearchableMixin, db.Model):
     __searchable__ = ['description', 'name']
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(140))
+    name = db.Column(db.String(140), unique = True)
     description = db.Column(db.String(1000))
     created_at = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     last_active = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     comments = db.relationship('FinComment', backref='asset', lazy='dynamic')
+    attachment = db.relationship('FinAssetAttachment', backref='asset', lazy='dynamic')
     followed_by = db.relationship(
         'User', secondary=followers,
         backref = 'assets', 
@@ -178,7 +179,11 @@ class FinComment(db.Model):
     body = db.Column(db.String(600))
     created_at = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
-
+class FinAssetAttachment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    asset_id = db.Column(db.Integer, db.ForeignKey('fin_asset.id'))
+    name = db.Column(db.String(140))
+   
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
