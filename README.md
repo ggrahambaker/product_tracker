@@ -1,6 +1,6 @@
 # what is this?
 
-a demo for creating a platform for collaborative discussion on paticular products. this demo should be able to create new product pages to be able to be viewed, commented on, and exported as a document. 
+a demo for creating a platform for collaborative discussion on paticular products. this demo should be able to create new product pages to be able to be viewed, commented on
 
 
 
@@ -26,6 +26,8 @@ a demo for creating a platform for collaborative discussion on paticular product
 ### newsfeed
 * most recently updated
 * pinned / needs attention
+
+
   
 ### search
 * search by title
@@ -45,14 +47,6 @@ a demo for creating a platform for collaborative discussion on paticular product
 
 # tech stack
 * python / flask
-* database tbd
-* devop tools to get a good system working to push changes
-  
+* database tbd  
 
-
-
-
-
-### tools 
-* venvv
 

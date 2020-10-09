@@ -21,3 +21,5 @@ class Config(object):
     UPLOAD_PATH = os.path.join(basedir, 'app/static/uploads') 
     ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL')
 
+    REDIS_URL = os.environ.get('REDIS_URL') or 'redis://'
+

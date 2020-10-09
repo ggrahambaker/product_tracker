@@ -8,6 +8,8 @@ import jwt
 from time import time
 from app.search import add_to_index, remove_from_index, query_index
 import json
+import redis
+import rq
 
 
 followers = db.Table(
@@ -78,6 +80,8 @@ class User(db.Model, UserMixin):
 
     notifications = db.relationship('Notification', backref='user',
                                     lazy='dynamic')
+
+    tasks = db.relationship('Task', backref='user', lazy='dynamic')
     last_message_read_time = db.Column(db.DateTime)
     about_me = db.Column(db.String(140))
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
@@ -130,6 +134,8 @@ class User(db.Model, UserMixin):
         db.session.add(n)
         return n
 
+    
+
     @staticmethod
     def verify_reset_password_token(token):
         try:
@@ -166,6 +172,24 @@ class FinAsset(SearchableMixin, db.Model):
     
     def get_followers(self):
         return FinAsset.followed_by
+    
+    def get_comments(self):
+        return FinAsset.comments
+
+    def launch_task(self, name, description, *args, **kwargs):
+        rq_job = current_app.task_queue.enqueue('app.tasks.' + name, self.id,
+                                                *args, **kwargs)
+        task = Task(id=rq_job.get_id(), name=name, description=description,
+                    user=self)
+        db.session.add(task)
+        return task
+
+    def get_tasks_in_progress(self):
+        return Task.query.filter_by(user=self, complete=False).all()
+
+    def get_task_in_progress(self, name):
+        return Task.query.filter_by(name=name, user=self,
+                                    complete=False).first()
 
     
 
@@ -209,3 +233,22 @@ class Notification(db.Model):
         return json.loads(str(self.payload_json))
 
 
+
+
+class Task(db.Model):
+    id = db.Column(db.String(36), primary_key=True)
+    name = db.Column(db.String(128), index=True)
+    description = db.Column(db.String(128))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    complete = db.Column(db.Boolean, default=False)
+
+    def get_rq_job(self):
+        try:
+            rq_job = rq.job.Job.fetch(self.id, connection=current_app.redis)
+        except (redis.exceptions.RedisError, rq.exceptions.NoSuchJobError):
+            return None
+        return rq_job
+
+    def get_progress(self):
+        job = self.get_rq_job()
+        return job.meta.get('progress', 0) if job is not None else 100
