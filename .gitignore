@@ -1,6 +1,5 @@
 __pycache__/
 venv/
-migrations/
 copy_paste.txt
 app.db
 /logs
