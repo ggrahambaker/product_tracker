@@ -1,1 +1,1 @@
-web: flask db upgrade; flask translate compile; gunicorn tracker:app
+web: flask db upgrade; gunicorn tracker:app
