@@ -3,6 +3,7 @@ from flask import current_app
 
 def add_to_index(index, model):
     if not current_app.elasticsearch:
+        print('RETURNNNINGINGINGINGING')
         return
     payload = {}
     for field in model.__searchable__:
