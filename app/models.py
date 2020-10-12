@@ -193,7 +193,7 @@ class FinAsset(SearchableMixin, db.Model):
 
     
 
-    ## need to make url routing for weird names for asset names
+
 
     
 class FinComment(db.Model):
