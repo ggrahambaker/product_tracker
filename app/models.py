@@ -156,7 +156,7 @@ def load_user(id):
 
 
 class FinAsset(SearchableMixin, db.Model):
-    __searchable__ = ['description', 'name']
+    __searchable__ = ['name']
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(140), unique = True)
     description = db.Column(db.String(1000))
