@@ -197,7 +197,7 @@ def delete_attachment(attach_id):
 
     asset = FinAsset.query.get(attach.asset.id)
 
-    delete_file_s3(attach.filename)
+    delete_file_s3(attach.name)
     
     db.session.delete(attach)
     db.session.commit()
