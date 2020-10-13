@@ -1,5 +1,5 @@
 
-from flask import render_template, flash, redirect, url_for, request, current_app, g, jsonify
+from flask import render_template, flash, redirect, url_for, request, current_app, g, jsonify, abort
 from werkzeug.urls import url_parse
 from werkzeug.utils import secure_filename
 from app import db
@@ -74,26 +74,30 @@ def new_asset():
     form = MakeAssetForm()
 
     if form.validate_on_submit():
+
       
         asset = FinAsset(name=form.title.data, 
                         description=form.description.data,
                         owner=current_user)
         db.session.add(asset)
-
-  
-        if len(form.files.data) > 0:
-            for file in form.files.data:
-                filename = secure_filename(file.filename)
-                if filename == '':
-                    break
-                s3_filepath = upload_file_to_s3(file, filename)
-                att = FinAssetAttachment(name=filename, url=s3_filepath, asset = asset)
-                db.session.add(att)
-        
-
-    
         db.session.commit()
 
+
+        try:
+            if len(form.files.data) > 0:
+                for file in form.files.data:
+                    filename = secure_filename(file.filename)
+                    if filename == '':
+                        break
+                    s3_filepath = upload_file_to_s3(file, filename)
+                    att = FinAssetAttachment(name=filename, url=s3_filepath, asset = asset)
+                    db.session.add(att)
+            
+
+        
+            db.session.commit()
+        except:
+            abort(413)
         flash('created new asset page')
         return redirect(url_for('main.assets', assetname=asset.name))
     
