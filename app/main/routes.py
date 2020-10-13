@@ -85,7 +85,8 @@ def new_asset():
                 filename = secure_filename(file.filename)
                 if filename == '':
                     break
-                file.save(os.path.join(current_app.config['UPLOAD_PATH'], filename))
+                upload_file_to_s3(file, filename)
+                ##file.save(os.path.join(current_app.config['UPLOAD_PATH'], filename))
                 att = FinAssetAttachment(name=filename, asset = asset)
                 db.session.add(att)
         
