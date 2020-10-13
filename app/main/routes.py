@@ -197,11 +197,11 @@ def delete_attachment(attach_id):
 
     asset = FinAsset.query.get(attach.asset.id)
 
-    delete_file_s3(asset.filename)
+    delete_file_s3(attach.filename)
     
     db.session.delete(attach)
     db.session.commit()
-    os.remove(os.path.join(current_app.config['UPLOAD_PATH'], attach.name))
+    # os.remove(os.path.join(current_app.config['UPLOAD_PATH'], attach.name))
 
     return redirect(url_for('main.edit_asset', assetname=asset.name))
 
