@@ -207,6 +207,7 @@ class FinAssetAttachment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     asset_id = db.Column(db.Integer, db.ForeignKey('fin_asset.id'))
     name = db.Column(db.String(140))
+    url = db.Column(db.String(140))
    
 
 class Message(db.Model):
