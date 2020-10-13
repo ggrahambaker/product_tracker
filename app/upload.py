@@ -12,8 +12,7 @@ def delete_file_s3(filename):
     aws_secret_access_key=current_app.config['S3_SECRET_KEY']
   )
 
-  obj = s3.Object(current_app.config['S3_BUCKET'], filename)
-  obj.delete()
+  s3.delete_object(current_app.config['S3_BUCKET'], filename)
 
 
 def upload_file_to_s3(file, filename, acl="public-read"):
