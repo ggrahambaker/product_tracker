@@ -80,24 +80,24 @@ def new_asset():
                         description=form.description.data,
                         owner=current_user)
         db.session.add(asset)
+        
+        if len(form.files.data) > 0:
+            for file in form.files.data:
+
+                filename = secure_filename(file.filename)
+                if filename == '':
+                    break
+                photo_size = os.stat(file).st_size
+                if photo_size > current_app.config['MAX_CONTENT_LENGTH']:
+                    abort(413)
+                s3_filepath = upload_file_to_s3(file, filename)
+                att = FinAssetAttachment(name=filename, url=s3_filepath, asset = asset)
+                db.session.add(att)
+        
+
+    
         db.session.commit()
 
-
-        try:
-            if len(form.files.data) > 0:
-                for file in form.files.data:
-                    filename = secure_filename(file.filename)
-                    if filename == '':
-                        break
-                    s3_filepath = upload_file_to_s3(file, filename)
-                    att = FinAssetAttachment(name=filename, url=s3_filepath, asset = asset)
-                    db.session.add(att)
-            
-
-        
-            db.session.commit()
-        except:
-            abort(413)
         flash('created new asset page')
         return redirect(url_for('main.assets', assetname=asset.name))
     
