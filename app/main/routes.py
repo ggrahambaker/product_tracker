@@ -8,7 +8,7 @@ from app.main.forms import EditProfileForm, MakeAssetForm, MakeCommentForm, Sear
 from app.models import User, FinAsset, FinComment, Message, Notification, FinAssetAttachment
 
 from flask_login import current_user, login_required
-from upload import upload_file_to_s3
+from app.upload import upload_file_to_s3
 
 from datetime import datetime
 
