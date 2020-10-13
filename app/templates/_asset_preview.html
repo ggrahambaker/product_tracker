@@ -4,7 +4,7 @@
         <h3><a href="{{url_for('main.assets', assetname=asset.name)}}">{{ asset.name }}</a></h3>
     </div>
     <div class="col-sm-7">
-        <p>last active: {{ moment(asset.last_active).format('dddd, h:mm a') }}</p> 
+        <p>Last active: {{ moment(asset.last_active).format('dddd, h:mm a') }}</p> 
         <p>Created by: {{ asset.owner.username }}</p> 
         <p>Description: {{ asset.description }}</p>
     </div>
