@@ -87,7 +87,6 @@ def new_asset():
                 if filename == '':
                     break
                 s3_filepath = upload_file_to_s3(file, filename)
-                ##file.save(os.path.join(current_app.config['UPLOAD_PATH'], filename))
                 att = FinAssetAttachment(name=filename, url=s3_filepath, asset = asset)
                 db.session.add(att)
         
@@ -214,7 +213,6 @@ def delete_attachment(attach_id):
     
     db.session.delete(attach)
     db.session.commit()
-    # os.remove(os.path.join(current_app.config['UPLOAD_PATH'], attach.name))
 
     return redirect(url_for('main.edit_asset', assetname=asset.name))
 
