@@ -13,5 +13,5 @@ def internal_error(error):
 
 
 @bp.app_errorhandler(413)
-def internal_error(error):
+def too_large(error):
     return render_template('errors/413.html'), 413
