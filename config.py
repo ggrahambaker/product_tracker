@@ -26,7 +26,8 @@ class Config(object):
     POSTS_PER_PAGE = 10
     MAX_CONTENT_LENGTH = 1024 * 1024
     UPLOAD_EXTENSIONS = ['.jpg', '.png', '.pdf', '.doc', '.docx', '.txt']
-    UPLOAD_PATH = os.path.join(basedir, 'app/static/uploads') 
+    #UPLOAD_PATH = os.path.join(basedir, 'app/static/uploads') 
+    MAX_CONTENT_LENGTH = 1024 * 1024
     ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL')
 
 
