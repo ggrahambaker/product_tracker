@@ -148,7 +148,7 @@ def delete_comment(comment_id):
     return redirect(url_for('main.assets', assetname=asset.name))
 
 
-@bp.route('/delete_asset/<assetname>', methods=['POST'])
+@bp.route('/delete_asset/<assetname>', methods=['GET', 'POST'])
 @login_required
 def delete_asset(assetname):
     asset = FinAsset.query.filter_by(name = assetname).first_or_404() 
