@@ -148,7 +148,20 @@ def delete_comment(comment_id):
     return redirect(url_for('main.assets', assetname=asset.name))
 
 
-    
+@bp.route('/delete_asset/<assetname>', methods=['POST'])
+@login_required
+def delete_asset(assetname):
+    asset = FinAsset.query.filter_by(name = assetname).first_or_404() 
+    if not asset:
+        flash('an error has occured deleting attachment')
+
+        return redirect(url_for('main.index'))
+
+    db.session.delete(asset)
+    db.session.commit()
+
+    return redirect(url_for('main.index'))
+
 
 @bp.route('/edit_asset/<assetname>', methods=['GET', 'POST'])
 @login_required
