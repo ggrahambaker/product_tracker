@@ -5,9 +5,15 @@ from flask import current_app
 
 
 
-def delete_file_s3(file_path):
-  ## something
-  nice = 0
+def delete_file_s3(filename):
+  s3 = boto3.client(
+    "s3",
+    aws_access_key_id=current_app.config['S3_KEY_ID'],
+    aws_secret_access_key=current_app.config['S3_SECRET_KEY']
+  )
+
+  obj = s3.Object(current_app.config['S3_BUCKET'], filename)
+  obj.delete()
 
 
 def upload_file_to_s3(file, filename, acl="public-read"):

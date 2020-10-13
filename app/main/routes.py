@@ -8,7 +8,7 @@ from app.main.forms import EditProfileForm, MakeAssetForm, MakeCommentForm, Sear
 from app.models import User, FinAsset, FinComment, Message, Notification, FinAssetAttachment
 
 from flask_login import current_user, login_required
-from app.upload import upload_file_to_s3
+from app.upload import upload_file_to_s3, delete_file_s3
 
 from datetime import datetime
 
@@ -196,6 +196,8 @@ def delete_attachment(attach_id):
         return redirect(url_for('main.index'))
 
     asset = FinAsset.query.get(attach.asset.id)
+
+    delete_file_s3(asset.filename)
     
     db.session.delete(attach)
     db.session.commit()
