@@ -23,8 +23,8 @@ def upload_file_to_s3(file, filename, acl="public-read"):
           file,
           current_app.config['S3_BUCKET'],
           file.filename,
-          ExtraArgs={
-              "ACL": acl
+          ExtraArgs = {
+              "ACL": acl,
               "ContentType": file.content_type
           }
     )
