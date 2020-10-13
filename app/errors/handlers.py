@@ -14,4 +14,4 @@ def internal_error(error):
 
 @bp.app_errorhandler(413)
 def internal_error(error):
-    return render_template('errors/413.html'), 500
+    return render_template('errors/413.html'), 413
