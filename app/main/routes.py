@@ -92,9 +92,7 @@ def new_asset():
                 filename = secure_filename(file.filename)
                 if filename == '':
                     break
-                # photo_size = os.stat(file).st_size
-                # if photo_size > current_app.config['MAX_CONTENT_LENGTH']:
-                #    raise('RequestEntityTooLarge')
+                
                 s3_filepath = upload_file_to_s3(file, filename)
                 att = FinAssetAttachment(name=filename, url=s3_filepath, asset = asset)
                 db.session.add(att)
