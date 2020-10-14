@@ -59,6 +59,10 @@ def edit_profile():
     return render_template('edit_profile.html', title='Edit Profile',
                            form=form)
 
+@bp.route('/about')
+def about():
+
+    return render_template('about.html')
 
 @bp.route('/user/<username>')
 @login_required
@@ -81,6 +85,7 @@ def new_asset():
                         owner=current_user)
         db.session.add(asset)
         
+        
         if len(form.files.data) > 0:
             for file in form.files.data:
 
@@ -89,7 +94,7 @@ def new_asset():
                     break
                 photo_size = os.stat(file).st_size
                 if photo_size > current_app.config['MAX_CONTENT_LENGTH']:
-                    raise('RequestEntityTooLarge')
+                #    raise('RequestEntityTooLarge')
                 s3_filepath = upload_file_to_s3(file, filename)
                 att = FinAssetAttachment(name=filename, url=s3_filepath, asset = asset)
                 db.session.add(att)
